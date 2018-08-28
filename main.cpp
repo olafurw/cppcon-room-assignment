@@ -35,7 +35,7 @@ UpdateSchedCache()
         return false;
     }
 
-    const auto jsonContent = StringToJson(content.value());
+    const auto jsonContent = utils::StringToJson(content.value());
     if (!jsonContent)
     {
         std::cout << "Failure parsing sched json\n";
@@ -79,28 +79,12 @@ main(
         std::cout << "Unable to parse sched json file\n";
         return 1;
     }
-    
-    /*nlohmann::json jsonContent;
-    
-    try
+
+    for (const auto& event : schedJson.value())
     {
-        jsonContent = nlohmann::json::parse(content.value());
+        SchedEvent e(event);
+        std::cout << e.myName << std::endl;
     }
-    catch(...)
-    {
-        return 1;
-    }
-
-    std::vector<SchedEvent> events;
-
-    for(const nlohmann::json& event : jsonContent)
-    {
-        SchedEvent e;
-        e.myName = event["name"];
-        e.myGoers = std::stoi(event["goers"].get<std::string>());
-
-        std::cout << e.myGoers << " " << e.myName << std::endl;
-    }*/
 
     return 1;
 }
