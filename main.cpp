@@ -14,22 +14,8 @@
 static const char* locSchedJsonFilename = "sched.json";
 static const char* locApiKeyFilename = "api.key";
 
-std::optional<nlohmann::json>
-StringToJson(
-    const std::string&  aContent)
-{
-    try
-    {
-        return nlohmann::json::parse(aContent);
-    }
-    catch(...)
-    {
-        return {};
-    }
-}
-
 bool
-WriteSchedFileToDisk()
+UpdateSchedCache()
 {
     const std::string apiKey = utils::Trim(utils::FileToString(locApiKeyFilename));
     if (apiKey.empty())
@@ -79,14 +65,20 @@ main(
     if (force
         || !utils::FileExists(locSchedJsonFilename))
     {
-        if (!WriteSchedFileToDisk())
+        if (!UpdateSchedCache())
         {
+            std::cout << "Unable to update sched json file\n";
             return 1;
         }
     }
 
     const std::string schedContent = utils::FileToString(locSchedJsonFilename);
-
+    const auto schedJson = utils::StringToJson(schedContent);
+    if (!schedJson)
+    {
+        std::cout << "Unable to parse sched json file\n";
+        return 1;
+    }
     
     /*nlohmann::json jsonContent;
     

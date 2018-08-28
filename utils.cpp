@@ -74,4 +74,18 @@ namespace utils
 
         return file.good();
     }
+
+    std::optional<nlohmann::json>
+    StringToJson(
+        const std::string&  aContent)
+    {
+        try
+        {
+            return nlohmann::json::parse(aContent);
+        }
+        catch(...)
+        {
+            return {};
+        }
+    }
 }

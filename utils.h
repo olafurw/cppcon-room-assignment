@@ -2,6 +2,8 @@
 #define CPPCON_ROOM_ASSIGNMENT_UTILS_H
 
 #include <string>
+#include <optional>
+#include "json.hpp"
 
 namespace utils
 {
@@ -28,6 +30,10 @@ namespace utils
     bool
     StringToFile(
         const std::string&  aFilename,
+        const std::string&  aContent);
+
+    std::optional<nlohmann::json>
+    StringToJson(
         const std::string&  aContent);
 }
 
