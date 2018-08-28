@@ -8,27 +8,87 @@
 #include "http_init.h"
 #include "http_get.h"
 #include "json.hpp"
+#include "flags.hpp"
 #include "sched_event.h"
 
-int main()
+static const char* locSchedJsonFilename = "sched.json";
+static const char* locApiKeyFilename = "api.key";
+
+std::optional<nlohmann::json>
+StringToJson(
+    const std::string&  aContent)
 {
-    const std::string apiKey = utils::FileToString("api.key");
+    try
+    {
+        return nlohmann::json::parse(aContent);
+    }
+    catch(...)
+    {
+        return {};
+    }
+}
+
+bool
+WriteSchedFileToDisk()
+{
+    const std::string apiKey = utils::Trim(utils::FileToString(locApiKeyFilename));
     if (apiKey.empty())
     {
         std::cout << "File: 'api.key', missing\n";
-        return 1;
+        return false;
     }
 
     HttpInit init;
 
     HttpGet get;
-    const auto content = get.Get("https://cppcon2018.sched.com/api/session/list?api_key=" + apiKey + "&format=json");
+    const std::string url = "https://cppcon2018.sched.com/api/session/list?api_key=" + apiKey + "&format=json";
+    const auto content = get.Get(url);
     if (!content)
     {
-        return 1;
+        std::cout << "Failure fetching sched content\n";
+        return false;
     }
+
+    const auto jsonContent = StringToJson(content.value());
+    if (!jsonContent)
+    {
+        std::cout << "Failure parsing sched json\n";
+        return false;
+    }
+
+    const bool writeResult = utils::StringToFile(locSchedJsonFilename, jsonContent.value().dump(4));
+    if (!writeResult)
+    {
+        std::cout << "Failure writing sched json to " << locSchedJsonFilename << "\n";
+        return false;
+    }
+
+    std::cout << "Wrote " << locSchedJsonFilename << "\n";
+
+    return true;
+}
+
+int
+main(
+    int     aArgc,
+    char**  aArgv)
+{
+    const flags::args args(aArgc, aArgv);
+    const bool force = args.get<bool>("f", false);
+
+    if (force
+        || !utils::FileExists(locSchedJsonFilename))
+    {
+        if (!WriteSchedFileToDisk())
+        {
+            return 1;
+        }
+    }
+
+    const std::string schedContent = utils::FileToString(locSchedJsonFilename);
+
     
-    nlohmann::json jsonContent;
+    /*nlohmann::json jsonContent;
     
     try
     {
@@ -48,7 +108,7 @@ int main()
         e.myGoers = std::stoi(event["goers"].get<std::string>());
 
         std::cout << e.myGoers << " " << e.myName << std::endl;
-    }
+    }*/
 
     return 1;
 }

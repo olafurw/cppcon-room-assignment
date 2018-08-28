@@ -1,9 +1,42 @@
 #include "utils.h"
 
 #include <fstream>
+#include <algorithm>
 
 namespace utils
 {
+    std::string&
+    LeftTrim(
+        std::string& aStr)
+    {
+        aStr.erase(aStr.begin(), std::find_if(aStr.begin(), aStr.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
+        return aStr;
+    }
+
+    std::string&
+    RightTrim(
+        std::string& aStr)
+    {
+        aStr.erase(std::find_if(aStr.rbegin(), aStr.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), aStr.end());
+        return aStr;
+    }
+
+    std::string
+    Trim(
+        const std::string& aStr)
+    {
+        std::string tmp_str = aStr;
+        return LeftTrim(RightTrim(tmp_str));
+    }
+
+    bool
+    FileExists(
+        const std::string&  aFilename)
+    {
+        std::ifstream in(aFilename, std::ios::in | std::ios::binary);
+        return in.good();
+    }
+
     std::string
     FileToString(
         const std::string&  aFilename)
@@ -26,12 +59,19 @@ namespace utils
         return content;
     }
 
-    void
+    bool
     StringToFile(
         const std::string&  aFilename,
         const std::string&  aContent)
     {
         std::ofstream file(aFilename);
+        if (!file.good())
+        {
+            return false;
+        }
+
         file << aContent;
+
+        return file.good();
     }
 }
