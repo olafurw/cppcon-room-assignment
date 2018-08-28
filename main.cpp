@@ -80,10 +80,18 @@ main(
         return 1;
     }
 
+    std::vector<SchedEvent> events;
     for (const auto& event : schedJson.value())
     {
-        SchedEvent e(event);
-        std::cout << e.myName << std::endl;
+        events.emplace_back(event);
+    }
+
+    for (const auto& event : events)
+    {
+        if (event.Overlaps(events[0]))
+        {
+            std::cout << event.myName << std::endl;
+        }
     }
 
     return 1;

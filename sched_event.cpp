@@ -29,3 +29,10 @@ SchedEvent::SchedEvent(
     myEventStart = StringToTimePoint(myEventStartStr);
     myEventEnd = StringToTimePoint(myEventEndStr);
 }
+
+bool
+SchedEvent::Overlaps(
+    const SchedEvent& aSchedEvent) const
+{
+    return myEventStart >= aSchedEvent.myEventStart && myEventEnd <= aSchedEvent.myEventEnd;
+}

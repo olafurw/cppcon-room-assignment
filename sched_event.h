@@ -18,9 +18,12 @@ struct SchedEvent
     TimePoint       myEventEnd{};
     int32_t         myGoers = 0;
 
-    SchedEvent() = default;
-    SchedEvent(
-        const nlohmann::json& aJson);
+                    SchedEvent() = default;
+                    SchedEvent(
+                        const nlohmann::json& aJson);
+
+    bool            Overlaps(
+                        const SchedEvent& aSchedEvent) const;
 };
 
 #endif
